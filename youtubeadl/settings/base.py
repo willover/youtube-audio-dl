@@ -2,17 +2,34 @@
 Django settings for youtubeadl project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
+https://docs.djangoproject.com/en/1.8/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
+https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY',
+                       '^b46d^zsxhrthkq2p7ty14^zov%4@eq@j5e%f(ki_#2rnbp%-l')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
 
 # Application definition
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -21,19 +38,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # 3rd-party apps
-    'south',
+    # 3rd-party apps.
     'compressor',
-    'rest_framework',
-    'crispy_forms',
-    'gunicorn',
-    'djcelery',
     'django_extensions',
-    'kombu.transport.django',
 
-    # Local apps
-    'api',
-    'core',
+    # Project apps.
+    'youtubeadl.apps.core',
+    'youtubeadl.apps.downloader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -41,35 +52,58 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'youtubeadl.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+
+                # Local context processors.
+                'youtubeadl.apps.core.context_processors.third_party_tracking_ids',
+            ],
+        },
+    },
+]
 
 WSGI_APPLICATION = 'youtubeadl.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'youtubeadl',
-        'USER': 'youtubeadl',
-        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'password'),
-        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
-        'PORT': '',
+        'NAME': os.getenv('DATABASE_NAME', 'youtubeadl'),
+        'USER': os.getenv('DATABASE_USER', 'youtubeadl'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     }
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
+# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'US/Eastern'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -77,94 +111,86 @@ USE_L10N = True
 
 USE_TZ = True
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-)
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_ROOT, 'templates'),
-)
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-
-    # YouTube ADL context processors
-    'core.context_processors.third_party_tracking_ids',
-)
-
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/var/www/example.com/static/"
-STATIC_ROOT = '/webapps/youtubeadl/static/'
+STATIC_ROOT = os.getenv('STATIC_ROOT',
+                        os.path.join(BASE_DIR, 'collected_static'))
 
 STATIC_URL = '/static/'
 
+# Additional locations of static files.
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+
+# Media files.
+
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
+
 MEDIA_URL = '/media/'
 
-# Additional locations of static files
-STATICFILES_DIRS = (
-    os.path.join(PROJECT_ROOT, 'static'),
+
+# Email settings.
+
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT', 587)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+
+DEFAULT_FROM_EMAIL = 'Info <info@youtubeadl.com>'
+SERVER_EMAIL = 'Alerts <alerts@youtubeadl.com>'
+
+ADMINS = (
+    ('Admin', 'admin@youtubeadl.com'),
 )
 
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
 
-# Django-Crispy-Forms settings
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
-# Celery settings
-import djcelery
-djcelery.setup_loader()
-
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-
-# Youtube Audio Downloader Settings
-MAX_DURATION_MINUTES = 10800
+# Logging settings.
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'default': {
-            'format': '%(asctime)s  [%(name)s:%(lineno)s]  %(levelname)s - %(message)s'
+            'format': '%(asctime)s  [%(name)s:%(lineno)s]  %(levelname)s - %(message)s',
         },
         'simple': {
-            'format': '%(levelname)s %(message)s'
+            'format': '%(levelname)s %(message)s',
         },
     },
     'filters': {
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
+            '()': 'django.utils.log.RequireDebugFalse',
         }
     },
     'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'default'
+            'formatter': 'default',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
         }
     },
     'loggers': {
+        # Silence SuspiciousOperation.DisallowedHost exception ('Invalid
+        # HTTP_HOST' header messages). Set the handler to 'null' so we don't
+        # get those annoying emails.
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -172,10 +198,21 @@ LOGGING = {
         },
         '': {
             'handlers': ['console', ],
-            'level': 'INFO'
+            'level': 'INFO',
         }
     }
 }
 
-# Celery settings
-BROKER_URL = os.environ.get('BROKER_URL', 'amqp://guest:guest@localhost/')
+
+# YouTube Audio Downloader settings.
+MAX_DURATION_SECONDS = 10800
+
+
+# 3rd-party apps tracking IDs.
+GOOGLE_ANALYTICS_TRACKING_ID = os.getenv('GOOGLE_ANALYTICS_TRACKING_ID')
+ADDTHIS_PUBLISHER_ID = os.getenv('ADDTHIS_PUBLISHER_ID')
+
+
+# Celery settings.
+BROKER_URL = os.getenv('BROKER_URL', 'amqp://guest:guest@127.0.0.1//')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'amqp')

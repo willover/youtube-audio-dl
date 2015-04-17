@@ -1,131 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="">
-        <meta name="author" content="">
+{% extends 'base.html' %}
 
-        <title>YouTube Audio Downloader - Convert YouTube videos to MP3 audio</title>
-
-        <!-- CSS -->
-        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Add custom CSS here -->
-        <style>
-            body {margin-top: 90px;}
-        </style>
-
-     <!-- Go to www.addthis.com/dashboard to customize your tools -->
-    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid={{ addthis_publisher_id }}"></script>
-    </head>
-
-    <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container">
-              <a class="navbar-brand" href="/">
-                  <span class="glyphicon glyphicon-music"></span> YouTube Audio Downloader</a>
-            </div>
-        </nav>
-
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-12">
-                {% load crispy_forms_tags %}
-                {% crispy form %}
-            </div>
+{% block main %}
+  <div class="row">
+    <div class="col-lg-12">
+      <form class="form-horizontal" action="/test/" method="post">
+        {% csrf_token %}
+        <div class="text-center">
+          <h3>Enter the video URL to convert to MP3</h3>
+        </div>
+        <div class="form-group">
+          <div class="col-md-6 col-md-offset-3">
+            <input type="url" class="form-control input-lg" id="inputUrl" placeholder="e.g. https://www.youtube.com/watch?v=lUjWJSnGVB0">
           </div>
-          <div class="row">
-            <div class="addthis_sharing_toolbox text-center"></div>
-          </div>
-          <div class="row text-center">
-            <!-- Google Adsense - youtubeadl -->
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:300px;height:250px"
-                 data-ad-client="ca-pub-6288717492721806"
-                 data-ad-slot="3049862507">
-            </ins>
-          </div>
-        </div><!-- /.container -->
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary btn-lg">Convert</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-        <!-- JavaScript -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="{{ STATIC_URL }}jquery/jquery.min.js"></script>
-        <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+  <div class="row">
+    <div class="addthis_sharing_toolbox text-center"></div>
+  </div>
 
-        <script type="text/javascript">
-            // Disable submit buttons after click to prevent multiple submissions.
-            $(function () {
-                $('form').submit(function(){
-                    $(this).find('input[type=submit]').prop('disabled', true);
-                });
-            });
-
-            $(document).ajaxStart(function() {
-                $('#result').removeClass();
-                $('#result').addClass('alert');
-                $('#result').html("<center><img src='{{ STATIC_URL }}images/ajax-loader.gif'><br>"
-                    + "Converting video to MP3, please wait, this could take a few minutes...</center>");
-            });
-
-            $(document).ajaxStop(function() {
-                $('#result').html();
-                $('#submit-id-submit').prop('disabled', false);
-            });
-
-            function resetResultDiv() {
-                $('#result').html("");
-                $('#result').removeClass();
-            }
-
-            var frm = $('#download_form');
-            frm.submit(function () {
-                $.ajax({
-                    type: frm.attr('method'),
-                    url: "{% url 'extract_audio' %}",
-                    data: frm.serialize(),
-                    success: function (data) {
-                        var response = jQuery.parseJSON(data);
-                        if (response['success']) {
-                            if (response['video_id']) {
-                                $('#result').addClass("alert-success");
-                                $('#result').html("<strong><u><a href=" + response['download_link'] + " target=_self>"
-                                    + "Download &quot;" + response['filename'] + "&quot;</a></u></strong>");
-                            } else {
-                                $('#result').addClass("alert-danger");
-                                $('#result').html("Could not extract the audio. "
-                                    + "Please make sure the URL you entered is correct "
-                                    + "and the video is no more than 180 minutes long.");
-                            }
-                        } else {
-                            resetResultDiv();
-                            alert(response['detail']);
-                        }
-                    },
-                    error: function(data) {
-                        resetResultDiv();
-                        alert("Sorry, something went wrong. Please try again.");
-                    }
-                });
-                return false;
-            });
-        </script>
-
-        <!-- Google Adsense -->
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-
-        <!-- Google Analytics -->
-        <script>
-          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-          ga('create', '{{ google_analytics_tracking_id }}', 'auto');
-          ga('send', 'pageview');
-        </script>
-    </body>
-</html>
+  <div class="row text-center">
+    <!-- Google Adsense - youtubeadl -->
+    <ins class="adsbygoogle"
+       style="display:inline-block;width:300px;height:250px"
+       data-ad-client="ca-pub-6288717492721806"
+       data-ad-slot="3049862507">
+    </ins>
+  </div>
+{% endblock %}

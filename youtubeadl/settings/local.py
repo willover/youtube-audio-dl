@@ -1,16 +1,17 @@
 from base import *
 
 
-SECRET_KEY = '79&vz)($@07na+25vw4nb0r^p*6w0j+-x!m)y5p#76tp!gvs_5'
+INSTALLED_APPS += ('debug_toolbar',)
 
-DEBUG = True
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
 
-TEMPLATE_DEBUG = True
+# The Django Debug Toolbar will only be shown to these client IPs.
+INTERNAL_IPS = (
+    '127.0.0.1',
+)
 
-ALLOWED_HOSTS = []
-
-MEDIA_ROOT = '%s/media/' % PROJECT_ROOT
-
-# 3rd-party apps tracking IDs.
-GOOGLE_ANALYTICS_TRACKING_ID = None
-ADDTHIS_PUBLISHER_ID = None
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    'SHOW_TEMPLATE_CONTEXT': True,
+    'HIDE_DJANGO_SQL': False,
+}

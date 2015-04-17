@@ -1,16 +1,16 @@
 from base import *
 
 
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-
 DEBUG = False
 
-TEMPLATE_DEBUG = False
+ALLOWED_HOSTS = ['.example.com']
 
-ALLOWED_HOSTS = ['.youtubeadl.com']
 
-MEDIA_ROOT = '/webapps/youtubeadl/media/'
-
-# 3rd-party apps tracking IDs.
-GOOGLE_ANALYTICS_TRACKING_ID = 'UA-52335746-1'
-ADDTHIS_PUBLISHER_ID = 'ra-52fffdf9456ec7d2'
+# Use the cached template loader so template is compiled once and read from
+# memory instead of reading from disk on each load.
+TEMPLATES[0]['OPTIONS']['loaders'] = [
+    ('django.template.loaders.cached.Loader', [
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    ]),
+]

@@ -5,7 +5,7 @@ postgresql:
     - POSTGRESQL_USER=youtubeadl
     - POSTGRESQL_PASSWORD=password
   volumes:
-    - /dockerfiles/postgresql:/var/lib/postgresql
+    - /dockerfiles/youtube-audio-dl/postgresql:/var/lib/postgresql
   ports:
     - "5432:5432"
 
@@ -16,43 +16,35 @@ rabbitmq:
 
 # NOTES:
 #   - The C_FORCE_ROOT variable allows celery to run as the root user.
-#     Not recommended in production.
 celery:
   image: jcalazan/django
   environment:
     - C_FORCE_ROOT=true
     - DATABASE_HOST=postgresql
-    - BROKER_URL=amqp://guest:guest@rabbitmq/
-  working_dir: /youtube-audio-dl/youtubeadl
-  command: >
-    bash -c "sleep 2
-    && python manage.py celery worker -A youtubeadl -E -l info
-    --autoreload
-    --settings=settings.local"
+    - BROKER_URL=amqp://guest:guest@rabbitmq//
+  working_dir: /youtube-audio-dl
+  command: bash -c "sleep 3 && celery -A youtubeadl worker -l info --autoreload"
   volumes:
     - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
+    - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
     - ../youtube-audio-dl:/youtube-audio-dl
   links:
-    - postgresql:postgresql
-    - rabbitmq:rabbitmq
+    - postgresql
+    - rabbitmq
 
 django:
   image: jcalazan/django
   environment:
     - DATABASE_HOST=postgresql
-    - BROKER_URL=amqp://guest:guest@rabbitmq/
-  working_dir: /youtube-audio-dl/youtubeadl
-  command: >
-    bash -c "sleep 2
-    && pip install -r ../requirements.txt
-    && python manage.py syncdb --noinput --settings=settings.local
-    && python manage.py migrate --settings=settings.local
-    && python manage.py runserver 0.0.0.0:80 --settings=settings.local"
+    - BROKER_URL=amqp://guest:guest@rabbitmq//
+  working_dir: /youtube-audio-dl
+  command: bash -c "sleep 3 && python manage.py runserver 0.0.0.0:80"
   volumes:
     - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
+    - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
     - ../youtube-audio-dl:/youtube-audio-dl
   ports:
     - "80:80"
   links:
-    - postgresql:postgresql
-    - rabbitmq:rabbitmq
+    - postgresql
+    - rabbitmq
