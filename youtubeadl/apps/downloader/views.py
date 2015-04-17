@@ -85,7 +85,7 @@ class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
 
             # TODO: We're tying up resources here as we're waiting for the task
             # to finish. Remove this later and have the AJAX request retry
-            # until the result.ready().
+            # until result.ready().
             result.wait()
 
             data = {

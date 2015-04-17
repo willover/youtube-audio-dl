@@ -13,6 +13,9 @@ class Video(TimeStampedModel):
     download_count = models.IntegerField(null=True, default=0)
     last_download_date = models.DateTimeField(null=True)
 
+    def __unicode__(self):
+        return self.youtube_id
+
 
 class ActivityLog(TimeStampedModel):
     """
@@ -26,5 +29,5 @@ class ActivityLog(TimeStampedModel):
     )
 
     video = models.ForeignKey(Video)
-    client_ip = models.IPAddressField(null=True)
-    action = models.CharField(max_length=50)
+    client_ip = models.GenericIPAddressField(null=True)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)

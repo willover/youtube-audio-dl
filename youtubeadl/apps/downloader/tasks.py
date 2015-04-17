@@ -50,11 +50,16 @@ def convert(url, client_ip=None):
             'title': title
         }
 
-        # Simply return the filename if the file already exists, otherwise,
-        # start the conversion.
+        # Simply return the filename and update the video object if the file
+        # already exists, otherwise, start the conversion.
         output_filepath = os.path.join(settings.MEDIA_ROOT, audio_filename)
         if os.path.exists(output_filepath):
             result['filename'] = audio_filename
+
+            # Update the video object.
+            video.audio_filename = audio_filename
+            video.audio_filesize = os.path.getsize(output_filepath)
+            video.save()
         else:
             conversion_result = start_conversion(url, audio_filename, video)
 
@@ -65,12 +70,12 @@ def convert(url, client_ip=None):
     return result
 
 
-def start_conversion(url, output_file, video):
+def start_conversion(url, audio_filename, video):
     # We're creating a temporary file in case multiple workers are in the
     # process of converting the same video.
     temp_filepath = os.path.join(settings.MEDIA_ROOT,
-                                 '{0}_{1}'.format(uuid.uuid4(), output_file))
-    output_filepath = os.path.join(settings.MEDIA_ROOT, output_file)
+                                 '{0}_{1}'.format(uuid.uuid4(), audio_filename))
+    output_filepath = os.path.join(settings.MEDIA_ROOT, audio_filename)
 
     result = subprocess.check_call([
         'python',
@@ -87,8 +92,8 @@ def start_conversion(url, output_file, video):
         # Move the temporary file to the proper location.
         shutil.move(temp_filepath, output_filepath)
 
-        # Update the YouTube object.
-        video.audio_filename = output_file
+        # Update the video object.
+        video.audio_filename = audio_filename
         video.audio_filesize = os.path.getsize(output_filepath)
         video.save()
 
