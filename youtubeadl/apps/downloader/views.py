@@ -9,78 +9,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.encoding import smart_str
 from django.views.generic import TemplateView, View
 
-from braces.views import JSONResponseMixin, AjaxResponseMixin, CsrfExemptMixin
+from braces.views import JSONResponseMixin, AjaxResponseMixin
 from celery.result import AsyncResult
 
 from youtubeadl.apps.core.utils import get_client_ip
 
 from youtubeadl.apps.downloader import tasks
 from youtubeadl.apps.downloader.models import ActivityLog, Video
-
-
-class DownloadFormView(TemplateView):
-    template_name = 'home.html'
-
-
-class ConvertAjaxView(CsrfExemptMixin, JSONResponseMixin, AjaxResponseMixin, View):
-    """
-    Ajax view to start the video conversion.
-    """
-
-    # TODO: change to post_ajax and remove csrf exemption
-    def post(self, request, *args, **kwargs):
-        url = self.parse_url(request.POST.get('url', '').strip())
-
-        if url:
-            # Call celery task.
-            task = tasks.convert.delay(url, get_client_ip(request))
-            result = AsyncResult(task.id)
-            result.wait()
-
-            if result.successful():
-                data = {
-                    'message': 'Conversion successful!',
-                    'task_id': task.id
-                }
-
-                if result.result:
-                    youtube_id = result.result['youtube_id']
-                    filename = result.result['filename']
-                    download_link = reverse(
-                        'download_view',
-                        kwargs={'youtube_id': youtube_id, 'filename': filename}
-                    )
-
-                    data['video_id'] = youtube_id
-                    data['filename'] = filename
-                    data['download_link'] = download_link
-
-                    return self.render_json_response(data, status=200)
-
-            return self.render_json_response(
-                {'message': 'Something went wrong.'}, status=500)
-
-        return self.render_json_response({'message': 'Please provide a URL.'},
-                                         status=400)
-
-    def parse_url(self, url):
-        """
-        Remove the list parameter from the URL as we currently don't support
-        conversion of an entire playlist.
-        """
-        qs = parse_qs(urlparse(url).query)
-        if qs.get('list', None):
-            del(qs['list'])
-            parts = urlsplit(url)
-            return urlunsplit([
-                parts.scheme,
-                parts.netloc,
-                parts.path,
-                urllib.urlencode(qs, True),
-                parts.fragment
-            ])
-
-        return url
 
 
 def download(request, youtube_id, filename):
@@ -129,3 +64,79 @@ def download(request, youtube_id, filename):
             return response
 
     return HttpResponseRedirect(reverse('home'))
+
+
+class DownloadFormView(TemplateView):
+    template_name = 'home.html'
+
+
+class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
+    """
+    Ajax view to start the video conversion.
+    """
+
+    def post_ajax(self, request, *args, **kwargs):
+        url = self.parse_url(request.POST.get('url', '').strip())
+
+        if url:
+            # Call celery task.
+            task = tasks.convert.delay(url, get_client_ip(request))
+            result = AsyncResult(task.id)
+
+            # TODO: We're tying up resources here as we're waiting for the task
+            # to finish. Remove this later and have the AJAX request retry
+            # until the result.ready().
+            result.wait()
+
+            data = {
+                'task_id': task.id,
+                'is_ready': False,
+            }
+            if result.successful():
+                if result.result:
+                    youtube_id = result.result['youtube_id']
+                    filename = result.result['filename']
+                    download_link = reverse(
+                        'download_view',
+                        kwargs={'youtube_id': youtube_id,
+                                'filename': filename}
+                    )
+
+                    data['message'] = 'Conversion successful!'
+                    data['is_ready'] = True
+                    data['youtube_id'] = youtube_id
+                    data['filename'] = filename
+                    data['download_link'] = download_link
+
+                    return self.render_json_response(data, status=200)
+
+                data['message'] = 'Could not convert the video. Please make ' \
+                                  'sure the URL you entered is correct and ' \
+                                  'the video is no more than {} minutes long.'\
+                    .format(settings.MAX_DURATION_SECONDS / 60)
+                return self.render_json_response(data, status=200)
+
+            data['message'] = 'Something went wrong :('
+            return self.render_json_response(data, status=500)
+
+        return self.render_json_response({'message': 'Please provide a URL.'},
+                                         status=400)
+
+    def parse_url(self, url):
+        """
+        Remove the list parameter from the URL as we currently don't support
+        conversion of an entire playlist.
+        """
+        qs = parse_qs(urlparse(url).query)
+        if qs.get('list', None):
+            del(qs['list'])
+            parts = urlsplit(url)
+            return urlunsplit([
+                parts.scheme,
+                parts.netloc,
+                parts.path,
+                urllib.urlencode(qs, True),
+                parts.fragment
+            ])
+
+        return url
