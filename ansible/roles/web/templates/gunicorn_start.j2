@@ -26,11 +26,16 @@ RUNDIR=$(dirname $SOCKFILE)
 test -d $RUNDIR || mkdir -p $RUNDIR
 
 # Programs meant to be run under supervisor should not daemonize themselves
-# (do not use --daemon).
+# (do not use --daemon). Also note that the timeout is set to 5 minutes as we're
+# currently waiting for the celery task to finish before returning a response, which
+# could sometimes take a while. We should remove this later once we fixed the Ajax call
+# to check for the task status as this could tie up all the Gunicorn workers if the
+# site gets busy.
 exec gunicorn \
     --name $NAME \
     --workers $NUM_WORKERS \
     --max-requests $MAX_REQUESTS \
+    --timeout 300 \
     --user $USER --group $GROUP \
     --log-level debug \
     --bind unix:$SOCKFILE \
