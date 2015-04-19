@@ -2,7 +2,7 @@
 git+git://github.com/celery/py-amqp.git@7ef76ecde592dd7043b0f3703de7e22e2211f15c
 git+git://github.com/celery/billiard.git@3f8032870582ae8da76da712181c71cb9dd291ab
 git+git://github.com/celery/kombu.git@e6b3e8dc286590a7782a42bec2159afd2b87612a
-git+git://github.com/celery/celery.git@580ce0efd1508ce26084438b645af1ea9dc969d2
+git+git://github.com/jcalazan/celery.git@master
 
 Django==1.8
 django-braces==1.4.0
