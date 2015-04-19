@@ -19,3 +19,6 @@
 
 - include: setup_nginx.yml
   tags: nginx
+
+- include: setup_cron_jobs.yml
+  tags: cron
