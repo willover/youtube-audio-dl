@@ -56,7 +56,7 @@ def download(request, youtube_id, filename):
             return response
         else:
             # Have Nginx serve the file in production.
-            response = HttpResponse(mimetype='application/force-download')
+            response = HttpResponse(content_type='application/force-download')
             response['Content-Length'] = os.path.getsize(filepath)
             response['X-Accel-Redirect'] = os.path.join(settings.MEDIA_URL,
                                                         smart_str(filename))
