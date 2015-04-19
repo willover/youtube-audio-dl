@@ -17,3 +17,10 @@
   tags:
     - celery
     - deploy
+
+- name: Restart the flower app
+  supervisorctl: name=flower state=restarted
+  when: supervisor_applications.stdout.find('flower') != -1
+  tags:
+    - flower
+    - deploy
