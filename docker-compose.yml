@@ -23,7 +23,7 @@ celery:
     - DATABASE_HOST=postgresql
     - BROKER_URL=amqp://guest:guest@rabbitmq//
   working_dir: /youtube-audio-dl
-  command: bash -c "sleep 3 && celery -A youtubeadl worker -l info --autoreload"
+  command: bash -c "sleep 3 && celery -A youtubeadl worker -E -l info --concurrency=3"
   volumes:
     - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
     - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
