@@ -20,16 +20,14 @@
   file: path={{ celery_log_dir }}
         owner={{ celery_user }}
         group={{ celery_group }}
-        mode=0774
         state=directory
   tags:
     - celery
 
 - name: Create the {{ celery_application_name }} log file
-  file: path= {{ celery_log_file }}
+  file: path={{ celery_log_file }}
         owner={{ celery_user }}
         group={{ celery_group }}
-        mode=0774
         state=touch
   tags:
     - celery
