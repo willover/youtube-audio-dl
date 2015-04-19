@@ -105,6 +105,7 @@ class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
                     data['message'] = 'Conversion successful!'
                     data['is_ready'] = True
                     data['youtube_id'] = youtube_id
+                    data['title'] = result.result['title']
                     data['filename'] = filename
                     data['download_link'] = download_link
 

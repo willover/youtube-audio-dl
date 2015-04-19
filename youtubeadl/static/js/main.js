@@ -29,8 +29,9 @@ downloadForm.submit(function () {
             if (textStatus == 'success') {
                 if (data['is_ready'] == true) {
                     $('#result').addClass("alert-success");
-                    $('#result').html("<strong><u><a href=" + data['download_link'] + " target=_self>"
-                        + "Download &quot;" + data['filename'] + "&quot;</a></u></strong>");
+                    $('#result').html("<p>&quot;"+ data['title'] + "&quot; successfully converted!"
+                        + "<br><center><strong><u><a href=" + data['download_link'] + " target=_self>"
+                        + "Download MP3 File</a></u></strong></center></p>");
                 } else {
                     $('#result').addClass("alert-danger");
                     $('#result').html(data['message']);

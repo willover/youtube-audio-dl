@@ -1,6 +1,8 @@
-from youtubeadl.apps.core.utils import slugify
+import uuid
 
 import youtube_dl
+
+from youtubeadl.apps.core.utils import slugify
 
 
 def create_filename(value):
@@ -10,7 +12,14 @@ def create_filename(value):
     Non-ASCII characters will be deleted from the value and replace spaces with
     underscores. Slashes and percent signs are also stripped.
     """
-    return '{}.mp3'.format(slugify(value, u'_'))
+    filename = slugify(value, u'_')
+
+    # Generate a random filename if the title only contains non-ASCII
+    # characters (i.e. slugifying it deletes everything).
+    if not filename:
+        filename = uuid.uuid4()
+
+    return '{}.mp3'.format(filename)
 
 
 def get_video_info(url):

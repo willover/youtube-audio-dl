@@ -21,6 +21,7 @@ nginx_error_log_file: "{{ application_log_dir }}/nginx_error.log"
 nginx_static_dir: "{{ virtualenv_path }}/static/"
 nginx_media_dir: "{{ virtualenv_path }}/media/"
 
+
 # Django Environment variables
 django_environment:
   DJANGO_SETTINGS_MODULE: "{{ django_settings_file }}"
