@@ -12,8 +12,7 @@ Werkzeug>=0.10.4
 youtube-dl>=2014.06.26
 
 # Celery (pulling from master due to issue with Django 1.8, waiting for PyPi release)
-git+git://github.com/celery/celery.git@master
-https://github.com/celery/py-amqp/zipball/master
-https://github.com/celery/billiard/zipball/master
-https://github.com/celery/kombu/zipball/master
-
+git+git://github.com/celery/celery.git@580ce0efd1508ce26084438b645af1ea9dc969d2
+git+git://github.com/celery/py-amqp.git@7ef76ecde592dd7043b0f3703de7e22e2211f15c
+git+git://github.com/celery/billiard.git@3f8032870582ae8da76da712181c71cb9dd291ab
+git+git://github.com/celery/kombu.git@e6b3e8dc286590a7782a42bec2159afd2b87612a
