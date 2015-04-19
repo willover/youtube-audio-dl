@@ -38,14 +38,14 @@ In the project root (where the `docker-compose.yml` file is located), run:
 
 `docker-compose up -d`
 
-This will start the containers in the background, you can view the containers' logs by typing:
-
-`docker-compose logs`
-
-To restart the containers, simply run `docker-compose up` again (run `docker-compose --help` to see all available options).
+This will start the containers in the background (run `docker-compose --help` to see all available options).
 
 ### Run the Django database migrations
 
 `docker-compose run django python manage.py migrate`
 
-To run any management command inside the docker container, simply prepend `docker-compose run django`, where `django` is the name of service/container.
+To run any management command inside the docker container, simply prepend `docker-compose run django`.
+
+### View the logs
+
+`docker-compose logs`
