@@ -16,7 +16,7 @@ Technology Stack
 - Nginx
 - Gunicorn
 - Celery
-- Redis
+- RabbitMQ
 - Supervisor
 - Virtualenv
 
