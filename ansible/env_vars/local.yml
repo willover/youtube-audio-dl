@@ -40,7 +40,6 @@ rabbitmq_application_password: password
 
 # Celery settings.
 celery_num_workers: 2
-celery_application_settings_file: "{{ application_name }}.settings.local"
 
 
 # Application settings.

@@ -3,7 +3,6 @@
 # Application settings.
 virtualenv_path: "/webapps/{{ application_name }}"
 project_path: "{{ virtualenv_path }}/{{ project_name }}"
-application_path: "{{ project_path }}/{{ application_name }}"
 application_log_dir: "{{ virtualenv_path }}/logs"
 application_log_file: "{{ application_log_dir }}/gunicorn_supervisor.log"
 requirements_file: "{{ project_path }}/requirements.txt"
@@ -32,5 +31,5 @@ django_environment:
   EMAIL_HOST: "{{ smtp_host }}"
   EMAIL_HOST_USER: "{{ smtp_user }}"
   EMAIL_HOST_PASSWORD: "{{ smtp_password }}"
-  GOOGLE_ANALYTICS_TRACKING_ID = "{{ google_analytics_tracking_id }}"
-  ADDTHIS_PUBLISHER_ID = "{{ addthis_publisher_id }}"
+  GOOGLE_ANALYTICS_TRACKING_ID: "{{ google_analytics_tracking_id }}"
+  ADDTHIS_PUBLISHER_ID: "{{ addthis_publisher_id }}"
