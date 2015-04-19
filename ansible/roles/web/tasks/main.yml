@@ -1,5 +1,9 @@
 ---
 
+- name: Install ffmpeg
+  apt: name=ffmpeg update_cache={{ update_apt_cache }} force=yes state=installed
+  tags: packages
+
 - include: create_users_and_groups.yml
 
 - include: setup_virtualenv.yml
