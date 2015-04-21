@@ -1,4 +1,4 @@
-from base import *
+from youtubeadl.settings.base import *
 
 
 DEBUG = False
