@@ -1,15 +1,10 @@
-# Celery (pulling from master due to issue with Django 1.8, waiting for PyPi release)
-git+git://github.com/celery/py-amqp.git@7ef76ecde592dd7043b0f3703de7e22e2211f15c
-git+git://github.com/celery/billiard.git@3f8032870582ae8da76da712181c71cb9dd291ab
-git+git://github.com/jcalazan/kombu.git@master
-git+git://github.com/jcalazan/celery.git@master
-
 Django==1.8
 django-braces==1.4.0
 django-compressor==1.4
 django-debug-toolbar==1.3.0
 django-extensions==1.5.2
 django-grappelli==2.6.4
+celery==3.1.18
 flower==0.8.1
 gunicorn==19.3.0
 ipdb==0.8
