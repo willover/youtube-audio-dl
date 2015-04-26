@@ -32,23 +32,29 @@ https://docs.docker.com/installation/
 
 http://docs.docker.com/compose/install/
 
-### Start the Docker containers
+### Install the Python packages required by the project via pip
 
 In the project root (where the `docker-compose.yml` file is located), run:
+
+```
+docker-compose run django pip install -r requirements.txt
+```
+
+To run any command inside the Django Docker container, simply prepend `docker-compose run django`.
+
+### Start the Docker containers
 
 ```
 docker-compose up -d
 ```
 
-This will start the containers in the background (run `docker-compose --help` to see all available options).
+This will start the containers in the background.
 
 ### Run the Django database migrations
 
 ```
 docker-compose run django python manage.py migrate
 ```
-
-To run any management command inside the docker container, simply prepend `docker-compose run django`.
 
 ### View the logs
 
