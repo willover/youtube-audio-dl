@@ -1,7 +1,8 @@
 ---
 
 # Git settings.
-git_branch: rewrite
+setup_git_repo: no
+git_branch: master
 
 
 # Database settings.
