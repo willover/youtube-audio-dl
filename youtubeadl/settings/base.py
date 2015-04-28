@@ -220,6 +220,7 @@ LOGGING = {
 
 # YouTube Audio Downloader settings.
 MAX_DURATION_SECONDS = 10800
+DAILY_CONVERT_LIMIT = 25
 
 
 # 3rd-party apps tracking IDs.

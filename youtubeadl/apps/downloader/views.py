@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import urllib
 from urlparse import urlparse, parse_qs, urlsplit, urlunsplit
@@ -16,6 +17,9 @@ from youtubeadl.apps.core.utils import get_client_ip
 
 from youtubeadl.apps.downloader import tasks
 from youtubeadl.apps.downloader.models import ActivityLog, Video
+
+
+logger = logging.getLogger(__name__)
 
 
 def download(request, youtube_id, filename):
@@ -78,9 +82,14 @@ class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
         url = self.parse_url(request.POST.get('url', '').strip())
 
-        if url:
-            # Call celery task.
-            task = tasks.convert.delay(url, get_client_ip(request))
+        client_ip = get_client_ip(request)
+        client_convert_count = ActivityLog.objects\
+            .get_current_day_convert_count_by_ip(client_ip)
+        daily_limit = settings.DAILY_CONVERT_LIMIT
+        limit_reached = client_convert_count >= daily_limit
+
+        if url and not limit_reached:
+            task = tasks.convert.delay(url, client_ip)
             result = AsyncResult(task.id)
 
             # TODO: We're tying up resources here as we're waiting for the task
@@ -120,8 +129,14 @@ class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
             data['message'] = 'Something went wrong :('
             return self.render_json_response(data, status=500)
 
+        if limit_reached:
+            logger.warn('Client reached convert limit: %s', client_ip)
+            message = "Sorry, but you've reached your daily convert limit " \
+                      "of {}. Please try again tomorrow.".format(daily_limit)
+            return self.render_json_response({'message': message}, status=200)
+
         return self.render_json_response({'message': 'Please provide a URL.'},
-                                         status=400)
+                                         status=200)
 
     def parse_url(self, url):
         """

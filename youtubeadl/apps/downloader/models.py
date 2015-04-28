@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 from django_extensions.db.models import TimeStampedModel
@@ -17,6 +19,18 @@ class Video(TimeStampedModel):
         return self.youtube_id
 
 
+class ActivityLogManager(models.Manager):
+
+    def get_current_day_convert_count_by_ip(self, client_ip):
+        today = datetime.datetime.today()
+        return self.select_related().filter(
+            client_ip=client_ip,
+            action=ActivityLog.CONVERT,
+            created__year=today.year,
+            created__month=today.month,
+            created__day=today.day).count()
+
+
 class ActivityLog(TimeStampedModel):
     """
     Store user activity.
@@ -31,3 +45,5 @@ class ActivityLog(TimeStampedModel):
     video = models.ForeignKey(Video)
     client_ip = models.GenericIPAddressField(null=True)
     action = models.CharField(max_length=50, choices=ACTION_CHOICES)
+
+    objects = ActivityLogManager()
