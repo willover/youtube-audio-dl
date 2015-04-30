@@ -104,3 +104,14 @@ server {
         root {{ virtualenv_path }}/;
     }
 }
+
+
+### DOMAIN REDIRECTS ###
+
+# Redirect non-www top-level domain to www
+server {
+        listen 80;
+        listen 443;
+        server_name youtubeadl.com;
+        return 301 http://www.youtubeadl.com$request_uri;
+}
