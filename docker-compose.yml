@@ -5,7 +5,7 @@ postgresql:
     - POSTGRESQL_USER=youtubeadl
     - POSTGRESQL_PASSWORD=password
   volumes:
-    - /dockerfiles/youtube-audio-dl/postgresql:/var/lib/postgresql
+    - ~/dockerfiles/youtube-audio-dl/postgresql:/var/lib/postgresql
   ports:
     - "5432:5432"
 
@@ -25,8 +25,8 @@ celery:
   working_dir: /youtube-audio-dl
   command: bash -c "sleep 3 && celery -A youtubeadl worker -E -l info --concurrency=3"
   volumes:
-    - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
-    - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
+    - ~/dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
+    - ~/dockerfiles/youtube-audio-dl/bin:/usr/local/bin
     - ../youtube-audio-dl:/youtube-audio-dl
   links:
     - postgresql
@@ -43,8 +43,8 @@ flower:
   working_dir: /youtube-audio-dl
   command: bash -c "sleep 3 && celery -A youtubeadl flower --port=5555"
   volumes:
-    - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
-    - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
+    - ~/dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
+    - ~/dockerfiles/youtube-audio-dl/bin:/usr/local/bin
     - ../youtube-audio-dl:/youtube-audio-dl
   ports:
     - "5555:5555"
@@ -60,8 +60,8 @@ django:
   working_dir: /youtube-audio-dl
   command: bash -c "sleep 3 && python manage.py runserver_plus 0.0.0.0:80" 
   volumes:
-    - /dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
-    - /dockerfiles/youtube-audio-dl/bin:/usr/local/bin
+    - ~/dockerfiles/youtube-audio-dl/python:/usr/local/lib/python2.7
+    - ~/dockerfiles/youtube-audio-dl/bin:/usr/local/bin
     - ../youtube-audio-dl:/youtube-audio-dl
   ports:
     - "80:80"
