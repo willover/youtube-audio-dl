@@ -15,6 +15,7 @@ from celery.result import AsyncResult
 
 from youtubeadl.apps.core.utils import get_client_ip
 
+from youtubeadl.apps.core.models import Ad
 from youtubeadl.apps.downloader import tasks
 from youtubeadl.apps.downloader.models import ActivityLog, Video
 
@@ -72,6 +73,13 @@ def download(request, youtube_id, filename):
 
 class DownloadFormView(TemplateView):
     template_name = 'home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DownloadFormView, self).get_context_data()
+        context['ad_top'] = Ad.objects.filter(position=Ad.TOP).first()
+        context['ad_bottom'] = Ad.objects.filter(position=Ad.BOTTOM).first()
+
+        return context
 
 
 class ConvertAjaxView(JSONResponseMixin, AjaxResponseMixin, View):
