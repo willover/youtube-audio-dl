@@ -24,6 +24,10 @@ Technology Stack
 Getting Started with Docker and Docker Compose for Local Development
 --------------------------------------------------------------------
 
+**Note for boot2docker users:**
+
+In docker-compose.yml you may need to remove the `~` in `~/dockerfiles`. Boot2docker [automatically mounts the user directory](https://github.com/boot2docker/boot2docker#virtualbox-guest-additions) to the boot2docker VM and you may run into [permission issues](https://github.com/boot2docker/boot2docker/issues/581).
+
 ### Install Docker
 
 https://docs.docker.com/installation/
