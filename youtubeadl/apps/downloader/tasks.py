@@ -2,11 +2,11 @@ from __future__ import absolute_import
 
 import os
 import shutil
-import subprocess
 import uuid
 
 from django.conf import settings
 
+import youtube_dl
 from celery import shared_task
 
 from youtubeadl.apps.downloader.models import Video, ActivityLog
@@ -74,22 +74,31 @@ def start_conversion(url, audio_filename, video):
     # We're creating a temporary file in case multiple workers are in the
     # process of converting the same video.
     temp_filepath = os.path.join(settings.MEDIA_ROOT,
-                                 '{0}_{1}'.format(uuid.uuid4(), audio_filename))
+                                 '{0}.{1}'.format(uuid.uuid4(), '%(ext)s'))
     output_filepath = os.path.join(settings.MEDIA_ROOT, audio_filename)
 
-    result = subprocess.check_call([
-        'python',
-        '-m', 'youtube_dl',
-        '--no-playlist',
-        '--extract-audio',
-        '--audio-format', 'mp3',
-        '--output', temp_filepath,
-        url,
-    ])
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'extractaudio': True,
+        'audioformat': 'mp3',
+        'outtmpl': temp_filepath,
+        'noplaylist': True,
+        'postprocessors': [
+            {
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            },
+        ]
+    }
+
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        result = ydl.download([url])
 
     # Status code 0 is successful.
     if result == 0:
         # Move the temporary file to the proper location.
+        temp_filepath = temp_filepath.replace('.%(ext)s', '.mp3')
         shutil.move(temp_filepath, output_filepath)
 
         # Update the video object.
