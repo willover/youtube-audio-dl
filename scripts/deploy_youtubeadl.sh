@@ -2,4 +2,4 @@
 
 cd ../ansible
 
-ansible-playbook -i production ../ansible/site.yml --tags="deploy" --ask-vault-pass
+ansible-playbook -i ../ansible/production ../ansible/site.yml --tags="deploy" --ask-vault-pass
