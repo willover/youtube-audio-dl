@@ -85,6 +85,9 @@ def start_conversion(url, audio_filename, video):
         'noplaylist': True,
         'postprocessors': [
             {
+                'key': 'FFmpegMetadata'
+            },
+            {
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
